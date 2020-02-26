@@ -1,15 +1,23 @@
-import React from 'react';
+import React from 'react'
 // import logo from './logo.svg';
-import './App.css';
+import './App.css'
 // import name from 'module';
-import Landing from './views/Landing/Landing';
-import {ThemeProvider} from 'styled-components';
+import Landing from './views/Landing/Landing'
+import Login from './views/Login/Login'
+import {
+  BrowserRouter as Router,
+  Route,
+  Link,
+  Redirect
+} from 'react-router-dom'
+import { ThemeProvider } from 'styled-components'
+
 const theme = {
   colors: {
     primary: '#0070CD',
     default: '#363636',
     yellow: '#f4c324',
-    red:'#ff2865',
+    red: '#ff2865',
     turqoise: '#00bbd3',
     peachyPink: '#ff9391',
     lavenderBlue: '#7881fc',
@@ -21,12 +29,12 @@ const theme = {
     lightGrey: '#898989',
     lightBlack: '#474747',
     white: '#ffffff',
-    darkgrey:'#646464',
+    darkgrey: '#646464',
     veryVeryLightGrey: '#f6f6f6',
     veryLightGrey: '#e4e4e4',
-    lightBlue:'#e5f0fa',
-    mediumBlue:'#0070cd4d',
-    veryLightBlue:'#ccdee8',
+    lightBlue: '#e5f0fa',
+    mediumBlue: '#0070cd4d',
+    veryLightBlue: '#ccdee8',
     paige: '#f6eac9'
   },
   typography: {
@@ -40,14 +48,18 @@ const theme = {
   }
 }
 
-function App() {
+function App () {
   return (
-    <div className="App">
-      <ThemeProvider theme={theme}>
-        <Landing></Landing>
-      </ThemeProvider>
+    <div className='App'>
+      <Router path='/'>
+        <ThemeProvider theme={theme}>
+          {/* <Redirect to='/dashboard' /> */}
+          <Route path='/dashboard' component={Landing} />
+          <Route exact path='/auth' component={Login} />
+        </ThemeProvider>
+      </Router>
     </div>
-  );
+  )
 }
 
-export default App;
+export default App

@@ -24,6 +24,6 @@ export const SidebarItem = styled(Flex)`
         margin: 0 10px;
     }
 `
-export const StyledLink = styled.a`
+export const StyledLink = styled.div`
     text-decoration: none;
 `

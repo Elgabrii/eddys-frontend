@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { Headings, Base, ProductsContainer, ProductName, ImageContainer, Heading, Product, ProductPrice } from './Products.style';
 import ProductImage from '../../assets/bread.jpg';
 import ProductModal from '../../components/ProdutModal/ProductModal';
-import axios from 'axios';
+// import axios from 'axios';
 import {headers, GET, baseURL} from '../../api/api';
 export class Products extends Component {
   componentDidMount() {
