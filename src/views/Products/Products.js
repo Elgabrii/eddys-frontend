@@ -4,28 +4,32 @@ import ProductImage from '../../assets/bread.jpg';
 import ProductModal from '../../components/ProdutModal/ProductModal';
 import axios from 'axios';
 import {headers, GET, baseURL} from '../../api/api';
+import urls from '../../api/urls';
 export class Products extends Component {
   componentDidMount() {
     this.getProducts()
+    this.getCategories()
   }
   state = {
     products:[],
     toggleModal: false, 
   }
-  // async function getUser() {
-  //   try {
-  //     const response = await axios.get('/user?ID=12345');
-  //     console.log(response);
-  //   } catch (error) {
-  //     console.error(error);
-  //   }
-  // }
   getProducts = async() => {
     try {
       const response = await GET(`${baseURL}/products`, headers);
       this.setState({products: response.data})
     } catch (error) {
-      console.error(error);
+      throw error
+    }
+  }
+
+  getCategories = async() => {
+    try {
+      const response = await GET(`${baseURL}${urls.categories}`)
+      this.setState({ categories: response.data })
+    }
+    catch(err) {
+      throw err
     }
   }
   toggleModal = () => {
@@ -35,7 +39,7 @@ export class Products extends Component {
   }
   closeModal = () => this.setState({toggleModal: false})
   render() {
-    let { products, toggleModal } = this.state
+    let { products, toggleModal, categories } = this.state
     return (
       <Base width={1} flexDirection="column">
         <Headings justifyContent="space-between">
@@ -63,7 +67,7 @@ export class Products extends Component {
             ))
           }
         </ProductsContainer>
-         <ProductModal loadProducts={this.getProducts} toggle={toggleModal} closeModal={this.closeModal} />        
+         <ProductModal categories={categories} loadProducts={this.getProducts} toggle={toggleModal} closeModal={this.closeModal} />        
       </Base>
     );
   }

@@ -2,7 +2,9 @@ import React from 'react';
 // import logo from './logo.svg';
 import './App.css';
 // import name from 'module';
-import Landing from './views/Landing/Landing';
+import { BrowserRouter as Router, Redirect } from 'react-router-dom'
+import Routes from './routes';
+import Cookies from 'js-cookie';
 import {ThemeProvider} from 'styled-components';
 const theme = {
   colors: {
@@ -41,10 +43,14 @@ const theme = {
 }
 
 function App() {
+  let loggedIn = Cookies.get('auth')
   return (
     <div className="App">
       <ThemeProvider theme={theme}>
-        <Landing></Landing>
+        <Router>
+          <Routes />
+          {!loggedIn ? <Redirect to="/login"/> : ''}
+        </Router>
       </ThemeProvider>
     </div>
   );

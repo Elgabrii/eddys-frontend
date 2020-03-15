@@ -22,7 +22,7 @@ export const Base = styled(Flex)`
 // display: ${({ toggle }) => toggle ? 'flex' : 'none' };
 export const ModalBody = styled.div`
   width: 300px;
-  height: 300px;
+  /* height: 300px; */
   background: white;
   padding: 30px;
   display: flex;
