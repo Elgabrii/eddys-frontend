@@ -18,4 +18,6 @@ export const PATCH = (url, data, config) => axios.patch(url, data, config)
 
 export const DELETE = (url, config) => axios.delete(url, config)
 
-export const baseURL = 'https://eddys.herokuapp.com'
+export const baseURL = 'http://157.230.16.61:1337'
+
+export const bareBaseURL = 'http://157.230.16.61'

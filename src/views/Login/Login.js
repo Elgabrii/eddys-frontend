@@ -9,7 +9,7 @@ import {
   TextInput,
   Button
 } from './Login.style';
-import { POST } from '../../api/api';
+import { POST, baseURL } from '../../api/api';
 import urls from '../../api/urls';
 import { withRouter } from 'react-router-dom';
 import Cookies from 'js-cookie';
@@ -32,7 +32,7 @@ export class Login extends Component {
   submitCredintials = async () => {
     let { email, password } = this.state
     try {
-      let res = await POST(`${urls.testing}${urls.login}`, {
+      let res = await POST(`${baseURL}${urls.login}`, {
         email,
         password
       })

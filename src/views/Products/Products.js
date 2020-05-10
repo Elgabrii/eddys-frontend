@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
 import { Headings, Base, ProductsContainer, ProductName, ImageContainer, Heading, Product, ProductPrice } from './Products.style';
-import ProductImage from '../../assets/bread.jpg';
+// import ProductImage from '../../assets/bread.jpg';
 import ProductModal from '../../components/ProdutModal/ProductModal';
 import axios from 'axios';
-import {headers, GET, baseURL} from '../../api/api';
+import {headers, GET, baseURL, bareBaseURL} from '../../api/api';
 import urls from '../../api/urls';
+let ProductImage = `${baseURL}/file_uploads/f878db9e-ee2a-47bc-b87c-d78f6d83edd0.jpg`
 export class Products extends Component {
   componentDidMount() {
     this.getProducts()
@@ -55,7 +56,7 @@ export class Products extends Component {
             products.map(product => (
               <Product key={product.id} m={1} flexDirection="column">
               <ImageContainer>
-                <img src={ProductImage} alt="" />
+                <img src={`${bareBaseURL}/${product&&product.images[0]&& product.images[0].link}`} alt="" />
               </ImageContainer>
                 <ProductName>
                   {product.nameEnglish}

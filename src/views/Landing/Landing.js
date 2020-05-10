@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Flex } from '@rebass/grid';
 import Sidebar from '../../components/Sidebar/Sidebar';
 import Products from '../Products/Products';
+import Orders from '../Orders/Orders';
 // import Header from '../../components/Header';
 import {
   SidebarContainer,
@@ -15,6 +16,17 @@ import {
 // import { loadCats } from '../../store/actions/cats';
 // import { bindActionCreators } from 'redux';
 // import AllOrders from '../AllOrders/AllOrders';
+import { BrowserRouter as Router, Route, Switch, Redirect, withRouter, Link, useRouteMatch } from 'react-router-dom'
+import Routes from '../../routes';
+import { Product } from '../Products/Products.style';
+const Hello = () => <h1>hello</h1>
+const MenuLink = ({ label, to, activeOnlyWhenExact}) => {
+  let match = useRouteMatch({
+    path: to,
+    exact: activeOnlyWhenExact
+  })
+  return <Link to={to}>{label}</Link>
+}
 
 export class Landing extends Component {
   constructor(props) {
@@ -23,10 +35,16 @@ export class Landing extends Component {
       sideBarItems: [
         {
           id: 0,
-          name: 'Orders',
+          name: 'Products',
           // icon: require('../../Assets/icon-sales.svg'),
           url: '/'
-        }
+        },
+        {
+          id: 1,
+          name: 'Orders',
+          // icon: require('../../Assets/icon-sales.svg'),
+          url: '/orders'
+        },
       ]
     }
   }
@@ -41,14 +59,17 @@ export class Landing extends Component {
       <>
         {/* <Header /> */}
         <Base p={0} width={1}>
+            <Router>
           <SidebarContainer width={1 / 8} flexDirection="column">
+
+            
             <Sidebar>
               {
                 ({selectedItem, select}) => (
                   <React.Fragment>
                     {
                       items.map(item => (
-                        <StyledLink key={item.id} to={item.url}>
+                        <MenuLink to={item.url} label={item.name} activeOnlyWhenExact={true}>
                           <SidebarItem
                             data-testid="sidebar-item"
                             alignItems="center"
@@ -59,7 +80,7 @@ export class Landing extends Component {
                             <img src={item&&item.icon} alt=""/>
                             {item.name}
                           </SidebarItem>
-                        </StyledLink>
+                        </MenuLink>
                       ))
                     }
                   </React.Fragment>
@@ -67,20 +88,21 @@ export class Landing extends Component {
               }
             </Sidebar>
           </SidebarContainer>
-          <Flex width={7 / 8} p={5}>
-              <Products></Products>
+          <Flex width={7 / 8} p={3}>
+           {/* <Switch>
+                  <Route exact path="/">
+                    <Products></Products>
+                  </Route>
+                  <Route exact path="/orders"> 
+                  </Route>
+            </Switch> */}
+                    <Orders></Orders>
           </Flex>
+          </Router>
         </Base>
       </>
     );
   }
 }
-// const mapDispatchToProps = dispatch =>
-//   bindActionCreators(
-//     {
-//       loadCats,
-//     },
-//     dispatch
-//   );
 
-export default Landing;
+export default withRouter(Landing);

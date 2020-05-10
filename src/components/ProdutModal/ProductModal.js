@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Base, ModalBody, Label, ModalRow, InputText, Button } from './ProductModal.style';
-import { POST, GET, headers } from '../../api/api';
+import { POST, GET, headers, baseURL } from '../../api/api';
 import urls from '../../api/urls';
 import ImageUploader from "react-images-upload";
 export class ProductModal extends Component {
@@ -21,15 +21,16 @@ export class ProductModal extends Component {
     const formData = new FormData()
     if(pictures) {
       for (let index = 0; index < pictures.length; index++) {
-        formData.append('file', pictures[index])
+        formData.append('files', pictures[index])
       }
     }
     try {
-      let res = await POST(`${urls.base}${urls.upload}`, formData, {
+      let res = await POST(`${baseURL}${urls.upload}?limit=${this.state.pictures.length}`, formData, {
         ...headers,
         'content-type': 'multipart/form-data'
       })
-      this.setState({pictures: res.data})
+      let images = res.data.uploadedImages.map(image => image.id)
+      this.setState({pictures: images}, this.submit)
     }
     catch(err) {
       throw err
@@ -57,7 +58,11 @@ export class ProductModal extends Component {
   // }
   submit = async () => {
     try {
-      await POST(`${urls.testing}${urls.products}`, this.state, headers)
+      await POST(`${baseURL}${urls.products}`, {
+        ...this.state,
+        images: this.state.pictures,
+        pictures: []
+      }, headers)
       this.props.loadProducts()
       this.closeModal()
       // await GET(`${urls.base}${urls.products}`, headers)
