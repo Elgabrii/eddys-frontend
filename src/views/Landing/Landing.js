@@ -39,12 +39,12 @@ export class Landing extends Component {
           // icon: require('../../Assets/icon-sales.svg'),
           url: '/'
         },
-        {
-          id: 1,
-          name: 'Orders',
-          // icon: require('../../Assets/icon-sales.svg'),
-          url: '/orders'
-        },
+        // {
+        //   id: 1,
+        //   name: 'Orders',
+        //   // icon: require('../../Assets/icon-sales.svg'),
+        //   url: '/orders'
+        // },
       ]
     }
   }
@@ -69,7 +69,7 @@ export class Landing extends Component {
                   <React.Fragment>
                     {
                       items.map(item => (
-                        <MenuLink to={item.url} label={item.name} activeOnlyWhenExact={true}>
+                        <StyledLink to={item.url} label={item.name} activeOnlyWhenExact={true}>
                           <SidebarItem
                             data-testid="sidebar-item"
                             alignItems="center"
@@ -80,7 +80,7 @@ export class Landing extends Component {
                             <img src={item&&item.icon} alt=""/>
                             {item.name}
                           </SidebarItem>
-                        </MenuLink>
+                        </StyledLink>
                       ))
                     }
                   </React.Fragment>
@@ -89,14 +89,14 @@ export class Landing extends Component {
             </Sidebar>
           </SidebarContainer>
           <Flex width={7 / 8} p={3}>
-           {/* <Switch>
+           <Switch>
                   <Route exact path="/">
                     <Products></Products>
                   </Route>
-                  <Route exact path="/orders"> 
-                  </Route>
-            </Switch> */}
+                  {/* <Route exact path="/orders"> 
                     <Orders></Orders>
+                  </Route> */}
+            </Switch>
           </Flex>
           </Router>
         </Base>

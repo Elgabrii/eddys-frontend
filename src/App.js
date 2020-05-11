@@ -49,7 +49,7 @@ function App() {
       <ThemeProvider theme={theme}>
         <Router>
           <Routes />
-          {!loggedIn ? <Redirect to="/login"/> : ''}
+          {/* {!loggedIn ? <Redirect to="/login"/> : ''} */}
         </Router>
       </ThemeProvider>
     </div>

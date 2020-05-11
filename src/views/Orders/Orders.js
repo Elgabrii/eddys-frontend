@@ -56,16 +56,6 @@ class Orders extends Component {
       let orders = res.data.results
       let count = res.data.count
       let pages = Math.ceil(count/30)
-      let ids = []
-      for (let i = 0; i < orders.length; i++) {
-        if(orders[i].products) {
-          let products = orders[i].products
-          for (let j = 0; j < products.length; j++) {
-            // ids.push(products[j])
-          }
-        }
-      }
-      console.log('ids', ids)
       this.setState({orders, pages})
     }
     catch(err) {
