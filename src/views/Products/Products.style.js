@@ -5,6 +5,7 @@ export const Headings = styled(Flex)`
 `
 export const Heading = styled(Flex)`
   font-size: ${({theme}) => theme.typography.h2}
+  ${({pointer}) => pointer ? `cursor: pointer` : '' }
 `
 export const PaginationContainer = styled.div`
   display: flex;

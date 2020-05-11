@@ -71,7 +71,7 @@ export class Products extends Component {
           <Heading>
             All products
           </Heading>
-          <Heading onClick={this.toggleModal}>
+          <Heading onClick={this.toggleModal} pointer>
             Add Product
           </Heading>
         </Headings>
@@ -80,7 +80,7 @@ export class Products extends Component {
             products.map(product => (
               <Product onClick={() => this.toggleModal(product, 'EDIT')} key={product.id} m={1} flexDirection="column">
               <ImageContainer>
-                <img src={`${bareBaseURL}/${product&&product.images[0]&& product.images[0].link}`} alt="" />
+                <img src={`http://eddys-kitchen.com:1337/file_uploads/${product&&product.images[0]&& product.images[0].link}`} alt="" />
               </ImageContainer>
                 <ProductName>
                   {product.nameEnglish}
