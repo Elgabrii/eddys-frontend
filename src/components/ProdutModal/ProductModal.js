@@ -29,8 +29,13 @@ export class ProductModal extends Component {
       price: '',
       pictures: [],
       availability: false,
+      howToPrepare: '',
+      storingMethod: '',
+      ingredientsEnglish: '',
+      ingredientsArabic: '',
       category: null,
       quantity: 0,
+      submitting: false,
     }
   }
   componentDidUpdate(prevProps) {
@@ -42,6 +47,10 @@ export class ProductModal extends Component {
       price,
       availability,
       category,
+      howToPrepare,
+      storingMethod,
+      ingredientsEnglish,
+      ingredientsArabic,
       edit
     } = this.props
     if(!edit) return
@@ -61,7 +70,19 @@ export class ProductModal extends Component {
       availability !== prevProps.availability
       ||
       edit !== prevProps.edit
+      ||
+      howToPrepare !== prevProps.howToPrepare
+      ||
+      storingMethod !== prevProps.storingMethod
+      ||
+      ingredientsEnglish !== prevProps.ingredientsEnglish
+      ||
+      ingredientsArabic !== prevProps.ingredientsArabic
       )
+      // howToPrepare: '',
+      // storingMethod: '',
+      // ingredientsEnglish: '',
+      // ingredientsArabic: '',
     this.setState({
       nameEnglish,
       nameArabic,
@@ -69,7 +90,12 @@ export class ProductModal extends Component {
       descriptionArabic,
       price,
       availability,
+      howToPrepare,
+      storingMethod,
+      ingredientsEnglish,
+      ingredientsArabic,
       category: category&&category.id
+
     })
   }
   // componentDidMount() {
@@ -94,12 +120,18 @@ export class ProductModal extends Component {
       price: '',
       descriptionEnglish: '',
       descriptionArabic: '',
+      howToPrepare: '',
+      storingMethod: '',
+      ingredientsEnglish: '',
+      ingredientsArabic: '',
       availability: false
     })
     this.props.stopEdit()
     this.props.closeModal()
   }
   uploadImages = async() => {
+    if(this.state.submitting) return
+    this.setState({submitting: true})
     let { pictures } = this.state
     const formData = new FormData()
     if(pictures) {
@@ -148,6 +180,7 @@ export class ProductModal extends Component {
           images: this.state.pictures,
           pictures: []
         }, headers)
+        this.setState({submitting: false})
         this.props.loadProducts()
         this.closeModal()
         // await GET(`${urls.base}${urls.products}`, headers)
@@ -157,12 +190,14 @@ export class ProductModal extends Component {
           images: this.state.pictures,
           pictures: []
         }, headers)
+        this.setState({submitting: false})
         this.props.loadProducts()
         this.closeModal()
       }
     }
     catch(err) {
-      console.log(err)
+      this.setState({submitting: false})
+      throw err;
     }
   }
   onChange = (e) => {
@@ -181,7 +216,7 @@ export class ProductModal extends Component {
   }
   render() {
     let { toggle, categories, product } = this.props
-    let { nameEnglish, nameArabic, descriptionEnglish, descriptionArabic, price, availability, category } = this.state
+    let { nameEnglish, nameArabic, descriptionEnglish, descriptionArabic, price, availability, category, howToPrepare, storingMethod, ingredientsEnglish, ingredientsArabic } = this.state
     return (
       <>
       {
@@ -194,10 +229,15 @@ export class ProductModal extends Component {
           </ModalRow>
             <TextField label="Description English" name="descriptionEnglish" onChange={this.onChange} value={descriptionEnglish}></TextField>
             <TextField label="Description Arabic" name="descriptionArabic" onChange={this.onChange} value={descriptionArabic}></TextField>
+            <TextField label="How to Prepare" name="howToPrepare" onChange={this.onChange} value={howToPrepare}></TextField>
+            <TextField label="Storing Method" name="storingMethod" onChange={this.onChange} value={storingMethod}></TextField>
+            <TextField label="Ingredients English" name="ingredientsEnglish" onChange={this.onChange} value={ingredientsEnglish}></TextField>
+            <TextField label="Ingredients Arabic" name="ingredientsArabic" onChange={this.onChange} value={ingredientsArabic}></TextField>
           <ModalRow justifyContent="space-between" mb={2}>
             <TextField label="Price" name="price" onChange={this.onChange} value={price}></TextField>
           </ModalRow>
           <ModalRow justifyContent="space-between" mb={2} mt={3}>
+            <p>Current Images assigned to product: {this.props.images&&this.props.images.length}</p>
             {/* <Label>Category</Label>
             <select name="category" onChange={this.onChange}>
               {categories&&categories.map(category => (

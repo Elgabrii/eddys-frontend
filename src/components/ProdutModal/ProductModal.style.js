@@ -7,8 +7,9 @@ export const Base = styled(Flex)`
   top: 0;
   left: 0;
   height: 100%;
-  color: black
+  color: black;
   background:#000000b8;
+  /* max-height: 500px; */
 `
 // background:#000000b8;
 // position:fixed;
@@ -27,8 +28,13 @@ export const ModalBody = styled.div`
   padding: 30px;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  /* justify-content: center; */
+  max-height: 500px;
+  border-radius: 3px;
+  overflow-y: scroll;
+  width: 50%;
   // align-items: center;
+
 `
 export const ModalRow = styled(Flex)`
 // color: white;
