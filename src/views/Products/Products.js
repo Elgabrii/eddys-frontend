@@ -3,7 +3,7 @@ import { Headings, Base, ProductsContainer, ProductName, ImageContainer, Heading
 // import ProductImage from '../../assets/bread.jpg';
 import ProductModal from '../../components/ProdutModal/ProductModal';
 import axios from 'axios';
-import {headers, GET, baseURL, bareBaseURL} from '../../api/api';
+import {GET, baseURL, bareBaseURL} from '../../api/api';
 import urls from '../../api/urls';
 import Pagination from '@material-ui/lab/Pagination';
 let ProductImage = `${baseURL}/file_uploads/f878db9e-ee2a-47bc-b87c-d78f6d83edd0.jpg`
@@ -25,7 +25,7 @@ export class Products extends Component {
   }
   getProducts = async(skip=0, limit=30) => {
     try {
-      const response = await GET(`${baseURL}/products?skip=${skip}&limit=${limit}`, headers);
+      const response = await GET(`${baseURL}/products?skip=${skip}&limit=${limit}`);
       const count = response.data.count
       this.setState({
         products: response.data.results,

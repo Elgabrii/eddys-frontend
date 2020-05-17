@@ -6,7 +6,7 @@ import Order from '../../components/Order/Order';
 import {
   GET,
   baseURL,
-  headers
+  api
 } from '../../api/api';
 import Pagination from '@material-ui/lab/Pagination';
 import { makeStyles } from '@material-ui/core/styles';
@@ -16,6 +16,7 @@ import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
 import Typography from '@material-ui/core/Typography';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import './Orders.scss'
+import Cookies from 'js-cookie';
 
 // const useStyles =
 const classes = (() => ({
@@ -52,7 +53,7 @@ class Orders extends Component {
 
   fetchOrders = async (skip, limit) => {
     try {
-      let res = await GET(`${baseURL}/order?skip=${skip}&limit=${limit}`)
+      let res = await api.get(`${baseURL}/order?skip=${skip}&limit=${limit}`)
       let orders = res.data.results
       let count = res.data.count
       let pages = Math.ceil(count/30)
@@ -72,7 +73,7 @@ class Orders extends Component {
   }
 
   fetchProductInfo = async (id) => {
-    return await GET(`${baseURL}/products/${id}`, headers)
+    return await GET(`${baseURL}/products/${id}`)
   }
 
   setPanelExpanded = async(index, selectedOrder) =>  {
@@ -84,7 +85,6 @@ class Orders extends Component {
         panelExpanded: '',
         panelLoading: false,
       }));
-      console.log(selectedOrder, 'selectedORder')
     } else {
       this.setState({
         panelExpanded: index,

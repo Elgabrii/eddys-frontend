@@ -37,7 +37,7 @@ export class Login extends Component {
         password
       })
       Cookies.set('auth', res.data.token)
-      this.props.history.replace('/')
+      this.props.history.push('/')
     }
     catch(error) {
       this.setState({error: 'wrong credinitals!'})

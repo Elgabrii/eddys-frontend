@@ -1,13 +1,36 @@
 import React from 'react'
 import { Switch, Route } from 'react-router-dom'
-import Landing from '../views/Landing/Landing'
 import Login from '../views/Login/Login'
+import Orders from 'views/Orders/Orders'
+import Products from 'views/Products/Products'
+
+
+const routes = [
+  {
+    path: '/',
+    component: Products,
+  },
+  {
+    path: '/login',
+    component: Login,
+  },
+  {
+    path: '/orders',
+    component: Orders,
+  },
+]
+
 const Routes = () => {
   return (
     <Switch>
-      <Route exact path="/" component={Landing} />
-      {/* <Route path="/orders" component={() => <h1>hello</h1>} /> */}
-      <Route path="/login" component={Login} />
+      {routes.map((route) => (
+        <Route
+          exact
+          key={route.path}
+          path={route.path}
+          component={route.component}
+        />
+      ))}
     </Switch>
   )
 }

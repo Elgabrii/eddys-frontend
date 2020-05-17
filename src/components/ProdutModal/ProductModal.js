@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Base, ModalBody, Label, ModalRow, InputText, Button } from './ProductModal.style';
-import { POST, GET, headers, baseURL, PATCH, PUT } from '../../api/api';
+import { POST, GET, baseURL, PATCH, PUT } from '../../api/api';
 import TextField from '@material-ui/core/TextField';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
@@ -141,7 +141,6 @@ export class ProductModal extends Component {
     }
     try {
       let res = await POST(`${baseURL}${urls.upload}?limit=${this.state.pictures.length}`, formData, {
-        ...headers,
         'content-type': 'multipart/form-data'
       })
       let images = res.data.uploadedImages.map(image => image.id)
@@ -179,7 +178,7 @@ export class ProductModal extends Component {
           ...this.state,
           images: this.state.pictures,
           pictures: []
-        }, headers)
+        })
         this.setState({submitting: false})
         this.props.loadProducts()
         this.closeModal()
@@ -189,7 +188,7 @@ export class ProductModal extends Component {
           ...this.state,
           images: this.state.pictures,
           pictures: []
-        }, headers)
+        })
         this.setState({submitting: false})
         this.props.loadProducts()
         this.closeModal()
