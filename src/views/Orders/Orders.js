@@ -123,42 +123,28 @@ class Orders extends Component {
                   aria-controls="panel1bh-content"
                   id="panel1bh-header"
                 >
-                  <Typography className={classes.heading}>Order #1</Typography>
+                  <Typography className={classes.heading}>Order #{order.createdAt}</Typography>
                 </ExpansionPanelSummary>
                 <ExpansionPanelDetails>
-                  <Typography className={classes.secondaryHeading}>
-                    <b>Client:</b> 
-                  </Typography>
                   <Typography>
-                    {order.user&&order.user.name}
-                  </Typography>
-                </ExpansionPanelDetails>
-                <ExpansionPanelDetails>
-                  <Typography>
-                  <Typography>
-                    <b>Phone Number:</b> 
-                  </Typography>
-                  <Typography>
-                    {order.user&&order.user.phoneNumber}
-                  </Typography>
-                  </Typography>
-                </ExpansionPanelDetails>
-                <ExpansionPanelDetails>
-                  <Typography>
-                  <Typography>
-                    <b>Email:</b> 
-                  </Typography>
-                  <Typography>
-                    {order.auth&&order.auth.email}
-                  </Typography>
-                  </Typography>
-                </ExpansionPanelDetails>
-                <ExpansionPanelDetails>
-                  <Typography>
-                    <b>Amount: </b> 
-                  </Typography>
-                  <Typography>
-                    {' '+order.amount} EGP
+                    <Typography className={classes.secondaryHeading}>
+                      <b>Client: </b>{order.user&&order.user.name}
+                    </Typography>
+                    <Typography>
+                      <b>Phone Number: </b> {order.user&&order.user.phoneNumber}
+                    </Typography>
+                    <Typography>
+                      <b>Email: </b> {order.auth&&order.auth.email}
+                    </Typography>
+                    <Typography>
+                      <b>Order status: </b> {order.status}
+                    </Typography>
+                    <Typography>
+                      <b>Payment method: </b> {order.method}
+                    </Typography>
+                    <Typography>
+                      <b>Amount: </b> {order.amount || '0'} EGP
+                    </Typography>
                   </Typography>
                 </ExpansionPanelDetails>
                 <ExpansionPanelDetails>
@@ -174,6 +160,30 @@ class Orders extends Component {
                     </Typography>
                   </Typography>
                 </ExpansionPanelDetails>
+                {(order&&(order.street||order.landmark||order.floor||order.city||order.building))&& 
+                  <ExpansionPanelDetails>
+                    <Typography>
+                      <Typography>
+                        <b>Address Details:</b> 
+                      </Typography>
+                      <Typography>
+                        Street: {order.street || ''}
+                      </Typography>
+                      <Typography>
+                        Building: {order.building || ''}
+                      </Typography>
+                      <Typography>
+                        Floor: {order.floor || ''}
+                      </Typography>
+                      <Typography>
+                        apartment: {order.appartment || ''}
+                      </Typography>
+                      <Typography>
+                        landmark: {order.landmark || ''}
+                      </Typography>
+                    </Typography>
+                  </ExpansionPanelDetails>
+                }
               </ExpansionPanel>
               </div>
            ) 
