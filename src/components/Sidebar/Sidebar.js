@@ -1,22 +1,17 @@
-import React, { Component } from 'react';
+import React, { useState } from 'react'
+import { useLocation } from 'react-router-dom'
 
-class Sidebar extends Component {
-  constructor(props) {
-    super(props)
-    this.state = {
-      selected: 0,
-    }
+const Sidebar = (props) => {
+  const location = useLocation()
+  const { children } = props
+  const [selected, setSelected] = useState(0)
+  const select = (item) => {
+    setSelected(item.id)
   }
-  select = (item) => {
-    this.setState({selected: item.id})
-  }
-  render() {
-    const { children } = this.props
-    return children({
-      selectedItem: this.state.selected,
-      select: this.select
-    })
-  }
+  return children({
+    selectedItem: location.pathname || selected,
+    select: select,
+  })
 }
 
-export default Sidebar;
+export default Sidebar
