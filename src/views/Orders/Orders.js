@@ -15,10 +15,24 @@ import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
 import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
 import Typography from '@material-ui/core/Typography';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import Button from '@material-ui/core/Button';
 import './Orders.scss'
 import Cookies from 'js-cookie';
+import {Flex} from '@rebass/grid';
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+
 
 // const useStyles =
+const convertCalendarDate = (date) => {
+  // let date2 = date
+  let year = date.getFullYear()
+  let month = date.getMonth()+1
+  let day = date.getDate()
+  // debugger
+  return `${year}-${month}-${day}`
+  // console.log(date,)
+}
 const classes = (() => ({
   root: {
     width: '100%',
@@ -33,7 +47,9 @@ const classes = (() => ({
     color: 'grey',
   },
 }))()
-
+// let endd = new Date()
+// let startt = endd - endd.getDate()-3
+// debugger
 class Orders extends Component {
   state = {
     orders: [],
@@ -44,7 +60,10 @@ class Orders extends Component {
     offset: 30,
     panelExpanded: '',
     panelLoading: false,
-    orderItems:[]
+    orderItems:[],
+    buttonLoading: false,
+    endDate: new Date(),
+    startDate: new Date(new Date().setDate(new Date().getDate() -3))
   }
   componentDidMount() {
     let { skip, limit } = this.state
@@ -53,7 +72,7 @@ class Orders extends Component {
 
   fetchOrders = async (skip, limit) => {
     try {
-      let res = await api.get(`${baseURL}/order?skip=${skip}&limit=${limit}`)
+      let res = await api.get(`${baseURL}/order?skip=${skip}&limit=${limit}&startDate=${convertCalendarDate(this.state.startDate)}&endDate=${convertCalendarDate(this.state.endDate)}`)
       let orders = res.data.results
       let count = res.data.count
       let pages = Math.ceil(count/30)
@@ -69,7 +88,7 @@ class Orders extends Component {
     let skip = (value-1)*offset
     let limit = value*offset
     this.fetchOrders(skip, limit)
-    this.setState({page: value})
+    this.setState({page: value, skip, limit})
   }
 
   fetchProductInfo = async (id) => {
@@ -97,6 +116,14 @@ class Orders extends Component {
       this.setState({orderItems: orderItems})
     }
   }
+  completeCashPayment = async(order) => {
+    this.setState({buttonLoading: true})
+    let id = order.id
+    await api.patch(`/order/${id}`, {
+        status: 'completed'
+    })
+    window.location.reload()
+  }
 
   resolveProductsPromises = async(promises) => {
     try {
@@ -108,11 +135,28 @@ class Orders extends Component {
       console.log(err)
     }
   }
-
+  handleStartDateChange = (val) => {
+    let { skip, limit } = this.state
+    this.setState({startDate: val}, () => this.fetchOrders(skip, limit))
+  }
+  handleEndDateChange = (val) => {
+    let { skip, limit } = this.state
+    this.setState({endDate: val},() => this.fetchOrders(skip, limit))
+  }
   render() {
-    let { orders, pages, page, panelExpanded, orderItems } = this.state
+    let { orders, pages, page, panelExpanded, orderItems, buttonLoading, endDate, startDate } = this.state
     return (
       <Base>
+      <Flex justifyContent="" width={1}>
+       end date <DatePicker
+          selected={endDate}
+          onChange={this.handleEndDateChange}
+        />
+       start date <DatePicker
+          selected={startDate}
+          onChange={this.handleStartDateChange}
+        />
+      </Flex>
         {
           orders&&orders.map((order, index) => {
            return (
@@ -124,6 +168,7 @@ class Orders extends Component {
                   id="panel1bh-header"
                 >
                   <Typography className={classes.heading}>Order #{order.createdAt}</Typography>
+                  <Typography className={classes.heading}>( {order.status} )</Typography>
                 </ExpansionPanelSummary>
                 <ExpansionPanelDetails>
                   <Typography>
@@ -140,10 +185,26 @@ class Orders extends Component {
                       <b>Order status: </b> {order.status}
                     </Typography>
                     <Typography>
-                      <b>Payment method: </b> {order.method}
+                      <b>Payment method: </b> {
+                      order.method == 'we-accept' ? order.method : (
+                        <>
+                          { order.method +' '} 
+                          {
+                            order.status!="completed"? 
+                          <Button variant="contained" onClick={() => this.completeCashPayment(order)} color="primary">
+                            {!buttonLoading? 'Complete Order' : 'Loading...'}
+                          </Button> :
+                          ''
+                          }
+                        </>
+                      )
+                      }
                     </Typography>
                     <Typography>
                       <b>Amount: </b> {order.amount || '0'} EGP
+                    </Typography>
+                    <Typography>
+                      <b>Delivery Time: </b> {order.orderDeliveryTime || '0'} EGP
                     </Typography>
                   </Typography>
                 </ExpansionPanelDetails>

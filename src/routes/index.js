@@ -3,6 +3,7 @@ import { Switch, Route } from 'react-router-dom'
 import Login from '../views/Login/Login'
 import Orders from 'views/Orders/Orders'
 import Products from 'views/Products/Products'
+import Categories from 'views/Categories/Categories';
 
 
 const routes = [
@@ -18,6 +19,10 @@ const routes = [
     path: '/orders',
     component: Orders,
   },
+  {
+    path: '/categories',
+    component: Categories
+  }
 ]
 
 const Routes = () => {
