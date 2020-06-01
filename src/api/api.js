@@ -9,7 +9,7 @@ import Cookies from 'js-cookie';
 // }
 export const baseURL = 'http://157.230.16.61:1337'
 export const bareBaseURL = 'http://157.230.16.61'
-let token = localStorage.getItem('auth');
+let token = sessionStorage.getItem('auth');
 export const api = axios.create({
   baseURL: baseURL,
   headers: {

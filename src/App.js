@@ -45,7 +45,7 @@ const theme = {
 }
 
 function App() {
-  let loggedIn = localStorage.getItem('auth')
+  let loggedIn = sessionStorage.getItem('auth')
   return (
     <div className="App">
       <ThemeProvider theme={theme}>
