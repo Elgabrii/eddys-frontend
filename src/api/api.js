@@ -9,10 +9,11 @@ import Cookies from 'js-cookie';
 // }
 export const baseURL = 'http://157.230.16.61:1337'
 export const bareBaseURL = 'http://157.230.16.61'
+let token = localStorage.getItem('auth');
 export const api = axios.create({
   baseURL: baseURL,
   headers: {
-    'x-access-token': Cookies.get('auth'),
+    'x-access-token': token,
     'Content-Type': 'application/json'
   }
 })

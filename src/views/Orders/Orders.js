@@ -21,6 +21,7 @@ import Cookies from 'js-cookie';
 import {Flex} from '@rebass/grid';
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import CircularProgress from '@material-ui/core/CircularProgress';
 
 
 // const useStyles =
@@ -63,7 +64,9 @@ class Orders extends Component {
     orderItems:[],
     buttonLoading: false,
     endDate: new Date(),
-    startDate: new Date(new Date().setDate(new Date().getDate() -3))
+    startDate: new Date(new Date().setDate(new Date().getDate() -3)),
+    ordersLoading: false,
+    error: false,
   }
   componentDidMount() {
     let { skip, limit } = this.state
@@ -71,14 +74,16 @@ class Orders extends Component {
   }
 
   fetchOrders = async (skip, limit) => {
+    this.setState({ordersLoading: true})
     try {
       let res = await api.get(`${baseURL}/order?skip=${skip}&limit=${limit}&startDate=${convertCalendarDate(this.state.startDate)}&endDate=${convertCalendarDate(this.state.endDate)}`)
       let orders = res.data.results
       let count = res.data.count
       let pages = Math.ceil(count/30)
-      this.setState({orders, pages})
+      this.setState({orders, pages, ordersLoading: false, error: false,})
     }
     catch(err) {
+      this.setState({ordersLoading: false, error: true})
       throw err
     }
   }
@@ -144,7 +149,7 @@ class Orders extends Component {
     this.setState({endDate: val},() => this.fetchOrders(skip, limit))
   }
   render() {
-    let { orders, pages, page, panelExpanded, orderItems, buttonLoading, endDate, startDate } = this.state
+    let { orders, pages, page, ordersLoading, error, panelExpanded, orderItems, buttonLoading, endDate, startDate } = this.state
     return (
       <Base>
       <Flex justifyContent="" width={1}>
@@ -156,100 +161,104 @@ class Orders extends Component {
           selected={startDate}
           onChange={this.handleStartDateChange}
         />
+              {/* <CircularProgress /> */}
+
       </Flex>
         {
-          orders&&orders.map((order, index) => {
-           return (
-             <div key={order.id} className="root">
-              <ExpansionPanel width={1} expanded={panelExpanded===index} onChange={() => this.setPanelExpanded(index, order)}>
-                <ExpansionPanelSummary
-                  expandIcon={<ExpandMoreIcon />}
-                  aria-controls="panel1bh-content"
-                  id="panel1bh-header"
-                >
-                  <Typography className={classes.heading}>Order #{order.createdAt}</Typography>
-                  <Typography className={classes.heading}>( {order.status} )</Typography>
-                </ExpansionPanelSummary>
-                <ExpansionPanelDetails>
-                  <Typography>
-                    <Typography className={classes.secondaryHeading}>
-                      <b>Client: </b>{order.user&&order.user.name}
-                    </Typography>
-                    <Typography>
-                      <b>Phone Number: </b> {order.user&&order.user.phoneNumber}
-                    </Typography>
-                    <Typography>
-                      <b>Email: </b> {order.auth&&order.auth.email}
-                    </Typography>
-                    <Typography>
-                      <b>Order status: </b> {order.status}
-                    </Typography>
-                    <Typography>
-                      <b>Payment method: </b> {
-                      order.method == 'we-accept' ? order.method : (
-                        <>
-                          { order.method +' '} 
-                          {
-                            order.status!="completed"? 
-                          <Button variant="contained" onClick={() => this.completeCashPayment(order)} color="primary">
-                            {!buttonLoading? 'Complete Order' : 'Loading...'}
-                          </Button> :
-                          ''
-                          }
-                        </>
-                      )
-                      }
-                    </Typography>
-                    <Typography>
-                      <b>Amount: </b> {order.amount || '0'} EGP
-                    </Typography>
-                    <Typography>
-                      <b>Delivery Time: </b> {order.orderDeliveryTime || '0'} EGP
-                    </Typography>
-                  </Typography>
-                </ExpansionPanelDetails>
-                <ExpansionPanelDetails>
-                  <Typography>
-                    <Typography>
-                      <b>Order Items:</b> 
-                    </Typography>
-                    <Typography>
-                      {orderItems&&orderItems.map(item => <>
-                      <p>{item.quantity || ''} x {item.nameEnglish || 'no name'} <b>{item.price*item.quantity || ''} EGP</b> </p>
-                      </>
-                      )}
-                    </Typography>
-                  </Typography>
-                </ExpansionPanelDetails>
-                {(order&&(order.street||order.landmark||order.floor||order.city||order.building))&& 
-                  <ExpansionPanelDetails>
-                    <Typography>
-                      <Typography>
-                        <b>Address Details:</b> 
-                      </Typography>
-                      <Typography>
-                        Street: {order.street || ''}
-                      </Typography>
-                      <Typography>
-                        Building: {order.building || ''}
-                      </Typography>
-                      <Typography>
-                        Floor: {order.floor || ''}
-                      </Typography>
-                      <Typography>
-                        apartment: {order.appartment || ''}
-                      </Typography>
-                      <Typography>
-                        landmark: {order.landmark || ''}
-                      </Typography>
-                    </Typography>
-                  </ExpansionPanelDetails>
-                }
-              </ExpansionPanel>
-              </div>
-           ) 
-          //  <Order order={order} />
-          })
+          error?<h3>an error has occured</h3> : 
+            ordersLoading? <CircularProgress /> : orders&&orders.map((order, index) => {
+              return (
+                <div key={order.id} className="root">
+                 <ExpansionPanel width={1} expanded={panelExpanded===index} onChange={() => this.setPanelExpanded(index, order)}>
+                   <ExpansionPanelSummary
+                     expandIcon={<ExpandMoreIcon />}
+                     aria-controls="panel1bh-content"
+                     id="panel1bh-header"
+                   >
+                     <Typography className={classes.heading}>Order #{order.createdAt}</Typography>
+                     <Typography className={classes.heading}>( {order.status} )</Typography>
+                   </ExpansionPanelSummary>
+                   <ExpansionPanelDetails>
+                     <Typography>
+                       <Typography className={classes.secondaryHeading}>
+                         <b>Client: </b>{order.user&&order.user.name}
+                       </Typography>
+                       <Typography>
+                         <b>Phone Number: </b> {order.user&&order.user.phoneNumber}
+                       </Typography>
+                       <Typography>
+                         <b>Email: </b> {order.auth&&order.auth.email}
+                       </Typography>
+                       <Typography>
+                         <b>Order status: </b> {order.status}
+                       </Typography>
+                       <Typography>
+                         <b>Payment method: </b> {
+                         order.method == 'we-accept' ? order.method : (
+                           <>
+                             { order.method +' '} 
+                             {
+                               order.status!="completed"? 
+                             <Button variant="contained" onClick={() => this.completeCashPayment(order)} color="primary">
+                               {!buttonLoading? 'Complete Order' : 'Loading...'}
+                             </Button> :
+                             ''
+                             }
+                           </>
+                         )
+                         }
+                       </Typography>
+                       <Typography>
+                         <b>Amount: </b> {order.amount || '0'} EGP
+                       </Typography>
+                       <Typography>
+                         <b>Delivery Time: </b> {order.orderDeliveryTime || '0'} EGP
+                       </Typography>
+                     </Typography>
+                   </ExpansionPanelDetails>
+                   <ExpansionPanelDetails>
+                     <Typography>
+                       <Typography>
+                         <b>Order Items:</b> 
+                       </Typography>
+                       <Typography>
+                         {orderItems&&orderItems.map(item => <>
+                         <p>{item.quantity || ''} x {item.nameEnglish || 'no name'} <b>{item.price*item.quantity || ''} EGP</b> </p>
+                         </>
+                         )}
+                       </Typography>
+                     </Typography>
+                   </ExpansionPanelDetails>
+                   {(order&&(order.street||order.landmark||order.floor||order.city||order.building))&& 
+                     <ExpansionPanelDetails>
+                       <Typography>
+                         <Typography>
+                           <b>Address Details:</b> 
+                         </Typography>
+                         <Typography>
+                           Street: {order.street || ''}
+                         </Typography>
+                         <Typography>
+                           Building: {order.building || ''}
+                         </Typography>
+                         <Typography>
+                           Floor: {order.floor || ''}
+                         </Typography>
+                         <Typography>
+                           apartment: {order.appartment || ''}
+                         </Typography>
+                         <Typography>
+                           landmark: {order.landmark || ''}
+                         </Typography>
+                       </Typography>
+                     </ExpansionPanelDetails>
+                   }
+                 </ExpansionPanel>
+                 </div>
+              ) 
+             //  <Order order={order} />
+             })
+          
         }
         
           <Pagination count={pages} page={page} onChange={this.handlePaginationChange} color="primary" />

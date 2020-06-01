@@ -21,7 +21,7 @@ export class Login extends Component {
   }
 
   componentDidMount() {
-    let authenticated = Cookies.get('auth')
+    let authenticated = localStorage.getItem('auth')
     if (authenticated) {
       this.props.history.replace('/')
     }
@@ -36,7 +36,9 @@ export class Login extends Component {
         email,
         password
       })
-      Cookies.set('auth', res.data.token)
+      // Cookies.set('auth', res.data.token)
+      localStorage.setItem('auth', res.data.token)
+      window.location.reload()
       this.props.history.push('/')
     }
     catch(error) {
