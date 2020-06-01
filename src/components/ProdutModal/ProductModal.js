@@ -5,7 +5,9 @@ import TextField from '@material-ui/core/TextField';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
 import MenuItem from '@material-ui/core/MenuItem';
-
+import GridList from '@material-ui/core/GridList';
+import GridListTile from '@material-ui/core/GridListTile';
+import './productModal.scss';
 
 import urls from '../../api/urls';
 import ImageUploader from "react-images-upload";
@@ -99,7 +101,7 @@ export class ProductModal extends Component {
       ingredientsEnglish,
       ingredientsArabic,
       category: category&&category.id,
-      images
+      images: images.map(image => ({...image, deleted: false}))
 
     })
   }
@@ -157,7 +159,10 @@ export class ProductModal extends Component {
   }
   submit = async () => {
     try {
-      let imageIds = this.state.images&&this.state.images.map(image=>image.id)
+
+      let imageIds = this.state.images&&this.state.images.filter(
+        image => !image.deleted
+      ).map(image=>image.id)
       if(!this.props.edit) {
         await POST(`${baseURL}${urls.products}`, {
           ...this.state,
@@ -198,9 +203,19 @@ export class ProductModal extends Component {
       pictures: this.state.pictures.concat(pictureFiles)
     });
   }
+  removeImage = (image) => {
+    let { images } = this.state
+    let newImages = [...images]
+    let imageIndex = newImages.findIndex(currentImage => currentImage.id === image.id)
+    newImages[imageIndex] = {
+      ...newImages[imageIndex],
+      deleted: !newImages[imageIndex].deleted,
+    }
+    this.setState({images: newImages})
+  }
   render() {
     let { toggle, categories, product } = this.props
-    let { nameEnglish, nameArabic, descriptionEnglish, descriptionArabic, price, availability, category, howToPrepare, storingMethod, ingredientsEnglish, ingredientsArabic } = this.state
+    let { nameEnglish, images, nameArabic, descriptionEnglish, descriptionArabic, price, availability, category, howToPrepare, storingMethod, ingredientsEnglish, ingredientsArabic } = this.state
     return (
       <>
       {
@@ -243,6 +258,18 @@ export class ProductModal extends Component {
               </MenuItem>
             ))}
           </TextField>
+          </ModalRow>
+          <ModalRow>
+            <GridList cellHeight="130" cols={3}>
+              {
+                images.map(image => 
+                  <GridListTile className={`pointer ${image.deleted? 'opacity' : 'no-opacity'}`} onClick={() => this.removeImage(image)} key={image.id} cols={1}>
+                    <img src={`http://eddys-kitchen.com:1337/file_uploads/${image.link}`} alt="" />
+                  </GridListTile>
+                )
+              }
+              
+            </GridList>
           </ModalRow>
           <ModalRow justifyContent="space-between" mb={2}>
             {/* <InputText name="quantity" onChange={this.onChange} value={quantity}></InputText> */}
