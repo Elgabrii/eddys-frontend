@@ -28,6 +28,7 @@ export class ProductModal extends Component {
       descriptionArabic: '',
       price: '',
       pictures: [],
+      images: [],
       availability: false,
       howToPrepare: '',
       storingMethod: '',
@@ -51,7 +52,8 @@ export class ProductModal extends Component {
       storingMethod,
       ingredientsEnglish,
       ingredientsArabic,
-      edit
+      edit,
+      images,
     } = this.props
     if(!edit) return
     if (
@@ -78,6 +80,8 @@ export class ProductModal extends Component {
       ingredientsEnglish !== prevProps.ingredientsEnglish
       ||
       ingredientsArabic !== prevProps.ingredientsArabic
+      ||
+      images !== prevProps.images
       )
       // howToPrepare: '',
       // storingMethod: '',
@@ -94,7 +98,8 @@ export class ProductModal extends Component {
       storingMethod,
       ingredientsEnglish,
       ingredientsArabic,
-      category: category&&category.id
+      category: category&&category.id,
+      images
 
     })
   }
@@ -150,33 +155,13 @@ export class ProductModal extends Component {
       throw err
     }
   }
-  // handleFileUpload = async (e) => {
-  //   this.setState({uploading: true})
-  //   let files = e.target.files
-  //   const formData = new FormData()
-  //   formData.append('file', files[0])
-  //   const config = {
-  //     headers: {
-  //         'content-type': 'multipart/form-data'
-  //     }
-  //   }
-  //   try {
-  //     await PUT(`${urls.base.inventoryMicroservice}${urls.endpoints.ProductsBulk}`, formData, config);
-  //     alert('File uploaded successfully!')
-  //     this.fileInput.value=""
-  //     this.setState({uploading: false})
-  //   }
-  //   catch(err) {
-  //     console.log(err);
-  //   }
-  // }
   submit = async () => {
     try {
+      let imageIds = this.state.images&&this.state.images.map(image=>image.id)
       if(!this.props.edit) {
-
         await POST(`${baseURL}${urls.products}`, {
           ...this.state,
-          images: this.state.pictures,
+          images: [...this.state.pictures, ...imageIds],
           pictures: []
         })
         this.setState({submitting: false})
@@ -186,7 +171,7 @@ export class ProductModal extends Component {
       } else {
         await PUT(`${baseURL}${urls.products}/${this.props.id}`, {
           ...this.state,
-          images: this.state.pictures,
+          images: [...this.state.pictures, ...imageIds],
           pictures: []
         })
         this.setState({submitting: false})
