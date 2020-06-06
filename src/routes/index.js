@@ -4,7 +4,7 @@ import Login from '../views/Login/Login'
 import Orders from 'views/Orders/Orders'
 import Products from 'views/Products/Products'
 import Categories from 'views/Categories/Categories';
-
+import Messages from 'views/Messages/Messages';
 
 const routes = [
   {
@@ -22,6 +22,10 @@ const routes = [
   {
     path: '/categories',
     component: Categories
+  },
+  {
+    path: '/messages',
+    component: Messages
   }
 ]
 

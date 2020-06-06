@@ -15,6 +15,11 @@ export const sideBarItems = [
     id: 2,
     name: 'Categories',
     url: '/categories'
+  },
+  {
+    id: 3,
+    name: 'Messages',
+    url: '/messages'
   }
 
 ]
