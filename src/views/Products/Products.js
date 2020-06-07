@@ -101,7 +101,7 @@ export class Products extends Component {
   render() {
     let { products, toggleModal, categories, currentProduct, pages, page, edit, loading } = this.state
     return (
-      <Base height="95vh" alignItems="center" width={1} flexDirection="column">
+      <Base height="100%" alignItems="center" width={1} flexDirection="column">
         <Headings width={1} justifyContent="space-between">
           <Heading>
             All products 

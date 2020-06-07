@@ -9,6 +9,7 @@ export const SidebarContainer = styled(Flex)`
   background: ${props => props.theme.colors.primary};
   padding-top: 30px;
   min-height: 96vh;
+  /* height: 100%; */
 `
 export const SidebarItem = styled(Flex)`
   ${({ selected }) => (selected ? 'border-left: 3px solid white' : '')};
