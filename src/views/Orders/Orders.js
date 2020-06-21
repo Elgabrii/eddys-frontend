@@ -22,6 +22,7 @@ import {Flex} from '@rebass/grid';
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import CircularProgress from '@material-ui/core/CircularProgress';
+import CsvDownload from 'react-json-to-csv'
 
 
 // const useStyles =
@@ -68,9 +69,14 @@ class Orders extends Component {
     ordersLoading: false,
     error: false,
   }
+  interval = null
   componentDidMount() {
     let { skip, limit } = this.state
     this.fetchOrders(skip,limit)
+    this.interval = setInterval(() => this.fetchOrders(skip,limit), 60000);
+  }
+  componentWillUnmount() {
+    clearInterval(this.interval);
   }
 
   fetchOrders = async (skip, limit) => {
@@ -151,10 +157,98 @@ class Orders extends Component {
     let { skip, limit } = this.state
     this.setState({endDate: val},() => this.fetchOrders(skip, limit))
   }
+  json2csv = (json) => {
+    // you can skip this step if your input is a proper array anyways:
+    const simpleArray = JSON.parse(json)
+    // in array look for the object with most keys to use as header
+    const header = simpleArray.map((x) => Object.keys(x))
+      .reduce((acc, cur) => (acc.length > cur.length ? acc : cur), []);
+
+    // specify how you want to handle null values here
+    const replacer = (key, value) => (
+      value === undefined || value === null ? '' : value);
+    let csv = simpleArray.map((row) => header.map(
+      (fieldName) => JSON.stringify(row[fieldName], replacer)).join(','));
+    csv = [header.join(','), ...csv];
+    return csv.join('\r\n');
+}
+downloadCSV = (csvStr, name="invoice") => {
+  var hiddenElement = document.createElement('a');
+  hiddenElement.href = 'data:text/plain;charset=utf-8,' + encodeURI(csvStr);
+  hiddenElement.target = '_blank';
+  hiddenElement.download = `${name}.txt`
+  hiddenElement.click();
+}
+
+generateInvoice = (order) => {
+  console.log(order, 'orderr')
+  let {orderItems} = this.state
+  let items = orderItems&&orderItems.reduce(
+    (acc, item) => acc+=`${item.quantity || ''} x ${item.nameEnglish || 'no name'} ${item.price*item.quantity || ''} EGP \n`,''
+  )
+  // let invoice = {
+  //   receivedAt: new Date(order.createdAt).toLocaleTimeString().toString(),
+  //   client: order.user&& order.user.name,
+  //   phoneNumber: order.user&&order.user.phoneNumber,
+  //   email: order.auth&&order.auth.email,
+  //   paymentMethod: order.method,
+  //   amount: order.amount,
+  //   orderItems: items,
+
+  // }
+  let invoice = `
+    received at : ${new Date(order.createdAt).toLocaleTimeString().toString()} \n
+    client: ${order.user&& order.user.name} \n
+    phone number: ${order.user&&order.user.phoneNumber} \n
+    email : ${order.auth&&order.auth.email} \n
+    payment method: ${order.method} \n
+    amount: ${order.amount} \n
+    order items: \n
+      ${items}
+    Address Details: \n
+      Zone: ${order.city || ''} \n
+      Street: ${order.street || ''} \n
+      Building: ${order.building || ''} \n
+      Floor: ${order.floor || ''} \n
+      Apartment: ${order.appartment || ''} \n
+      Landmark: ${order.landmark || ''} \n
+      Note: ${order.notes || ''} \n
+  `
+  this.downloadCSV(invoice)
+}
+
+generateConsumedStock = async() => {
+  let { orders } = this.state
+  let productsArray = orders.reduce((acc, currentOrder) => [...acc, ...currentOrder.products],[]).map(product => ({...product, quantity: parseInt(product.quantity)}))
+  let stockConsumed = {}
+  for (let i = 0; i < productsArray.length; i++) {
+    const element = productsArray[i];
+    if(element.id in stockConsumed) {
+      stockConsumed[element.id] = stockConsumed[element.id] + element.quantity
+    } else {
+      stockConsumed = {
+        ...stockConsumed,
+        [element.id] : element.quantity
+      }
+    }
+  }
+  let productsPromises = Object.keys(stockConsumed).map((id) => this.fetchProductInfo(id))
+  
+  let productData = (await this.resolveProductsPromises(productsPromises)).map(product => ({id: product.id, name: product.nameEnglish, quantity: stockConsumed[product.id]}))
+  let stockReport = productData.reduce((acc, curr) => acc+= `${curr.name}: ${curr.quantity} \n`,'')
+  // let response = productData.map((orderItem, index) => ({...orderItem}))
+  this.downloadCSV(stockReport, 'stock_report')
+  // console.log(response,' ress')
+
+  // let products = orders.map()
+
+}
+
   render() {
     let { orders, pages, page, ordersLoading, error, panelExpanded, orderItems, buttonLoading, endDate, startDate, ordersCount } = this.state
     return (
       <Base>
+      <button onClick={this.generateConsumedStock}>Export stock</button>
       <Flex justifyContent="" width={1}>
        end date <DatePicker
           selected={endDate}
@@ -173,7 +267,7 @@ class Orders extends Component {
             <>
             <h5>Orders Count: {ordersCount}</h5>
             {
-              orders&&orders.map((order, index) => {
+              orders&&orders.filter(order => order.status === 'paid'|| order.status==="completed" || (order.status==='pending'&&order.method==="cash")).map((order, index) => {
                 return (
                   <div key={order.id} className="root">
                    <ExpansionPanel width={1} expanded={panelExpanded===index} onChange={() => this.setPanelExpanded(index, order)}>
@@ -182,13 +276,14 @@ class Orders extends Component {
                        aria-controls="panel1bh-content"
                        id="panel1bh-header"
                      >
-                       <Typography className={classes.heading}>Order #{order.createdAt}</Typography>
+                       <Typography className={classes.heading}>Order: <b>{order.id}</b></Typography>
                        <Typography className={classes.heading}>( {order.status} )</Typography>
                      </ExpansionPanelSummary>
                      <ExpansionPanelDetails>
+                       
                        <Typography>
                          <Typography className={classes.secondaryHeading}>
-                           <b>Order received at: {new Date(order.createdAt).toLocaleTimeString().toString()}</b>
+                           <b>Order received at: {new Date(order.createdAt).toLocaleTimeString().toString()}</b> <button onClick={()=>this.generateInvoice(order)}>Export order invoice</button>
                          </Typography>
                          <Typography className={classes.secondaryHeading}>
                            <b>Client: </b>{order.user&&order.user.name}
@@ -219,10 +314,17 @@ class Orders extends Component {
                            }
                          </Typography>
                          <Typography>
+                           {
+                              order.method == 'we-accept' ? <>
+                                <b>Order Transaction Payment Merchant id:</b> {order.id}
+                              </> : ''
+                           }
+                         </Typography>
+                         <Typography>
                            <b>Amount: </b> {order.amount || '0'} EGP
                          </Typography>
                          <Typography>
-                           <b>Delivery Time: </b> {order.orderDeliveryTime || '0'} EGP
+                           <b>Delivery Time: </b> {order.orderDeliveryTime || ''}
                          </Typography>
                        </Typography>
                      </ExpansionPanelDetails>
@@ -246,6 +348,9 @@ class Orders extends Component {
                              <b>Address Details:</b> 
                            </Typography>
                            <Typography>
+                             District: {order.city || ''}
+                           </Typography>
+                           <Typography>
                              Street: {order.street || ''}
                            </Typography>
                            <Typography>
@@ -259,6 +364,9 @@ class Orders extends Component {
                            </Typography>
                            <Typography>
                              landmark: {order.landmark || ''}
+                           </Typography>
+                           <Typography>
+                             client notes: {order.notes || ''}
                            </Typography>
                          </Typography>
                        </ExpansionPanelDetails>
@@ -284,102 +392,3 @@ class Orders extends Component {
 
 
 export default Orders;
-
-
-function convertToCSV(objArray) {
-  var array = typeof objArray != 'object' ? JSON.parse(objArray) : objArray;
-  var str = '';
-
-  for (var i = 0; i < array.length; i++) {
-      var line = '';
-      for (var index in array[i]) {
-          if (line != '') line += ','
-
-          line += array[i][index];
-      }
-
-      str += line + '\r\n';
-  }
-
-  return str;
-}
-
-function exportCSVFile(headers, items, fileTitle) {
-  if (headers) {
-      items.unshift(headers);
-  }
-
-  // Convert Object to JSON
-  var jsonObject = JSON.stringify(items);
-
-  var csv = this.convertToCSV(jsonObject);
-
-  var exportedFilenmae = fileTitle + '.csv' || 'export.csv';
-
-  var blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-  if (navigator.msSaveBlob) { // IE 10+
-      navigator.msSaveBlob(blob, exportedFilenmae);
-  } else {
-      var link = document.createElement("a");
-      if (link.download !== undefined) { // feature detection
-          // Browsers that support HTML5 download attribute
-          var url = URL.createObjectURL(blob);
-          link.setAttribute("href", url);
-          link.setAttribute("download", exportedFilenmae);
-          link.style.visibility = 'hidden';
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
-      }
-  }
-}
-
-
-// function download(){
-// var headers = {
-//     model: 'Phone Model'.replace(/,/g, ''), // remove commas to avoid errors
-//     chargers: "Chargers",
-//     cases: "Cases",
-//     earphones: "Earphones"
-// };
-
-// itemsNotFormatted = [
-//     {
-//         model: 'Samsung S7',
-//         chargers: '55',
-//         cases: '56',
-//         earphones: '57',
-//         scratched: '2'
-//     },
-//     {
-//         model: 'Pixel XL',
-//         chargers: '77',
-//         cases: '78',
-//         earphones: '79',
-//         scratched: '4'
-//     },
-//     {
-//         model: 'iPhone 7',
-//         chargers: '88',
-//         cases: '89',
-//         earphones: '90',
-//         scratched: '6'
-//     }
-// ];
-
-// var itemsFormatted = [];
-
-// // format the data
-// itemsNotFormatted.forEach((item) => {
-//     itemsFormatted.push({
-//         model: item.model.replace(/,/g, ''), // remove commas to avoid errors,
-//         chargers: item.chargers,
-//         cases: item.cases,
-//         earphones: item.earphones
-//     });
-// });
-
-// var fileTitle = 'orders'; // or 'my-unique-title'
-
-// exportCSVFile(headers, itemsFormatted, fileTitle); // call the exportCSVFile() function to process the JSON and trigger the download
-// }
