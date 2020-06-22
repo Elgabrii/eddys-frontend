@@ -83,9 +83,11 @@ class Orders extends Component {
     this.setState({ordersLoading: true})
     let start = this.state.startDate
     let end = this.state.endDate
-
+    // or=[{"status":"paid"}]
+    // where={"status":"paid"}
+    // or=[{"status":"pending", "method": "cash"},{"status": ["paid", "completed"]}]
     try {
-      let res = await api.get(`${baseURL}/order?skip=${skip}&limit=${limit}&startDate=${start}&endDate=${end}&sort=createdAt DESC`)
+      let res = await api.get(`${baseURL}/order?skip=${skip}&limit=${limit}&startDate=${start}&endDate=${end}&or=[{"status":"pending", "method": "cash"},{"status": ["paid", "completed"]}]&sort=createdAt DESC`)
       let orders = res.data.results
       let count = res.data.count
       let pages = Math.ceil(count/30)
