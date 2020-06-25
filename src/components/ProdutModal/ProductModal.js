@@ -264,7 +264,7 @@ export class ProductModal extends Component {
               {
                 images.map(image => 
                   <GridListTile className={`pointer ${image.deleted? 'opacity' : 'no-opacity'}`} onClick={() => this.removeImage(image)} key={image.id} cols={1}>
-                    <img src={`http://eddys-kitchen.com:1337/file_uploads/${image.link}`} alt="" />
+                    <img src={`https://backend.eddys-kitchen.com/${image.link}`} alt="" />
                   </GridListTile>
                 )
               }

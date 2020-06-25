@@ -36,7 +36,11 @@ export class Login extends Component {
         email,
         password
       })
-      // Cookies.set('auth', res.data.token)
+      // debugger
+      // console.log(res.data)
+      let user = res.data.user;
+      if(user.role!=="admin") throw new Error()
+      Cookies.set('auth', res.data.token)
       sessionStorage.setItem('auth', res.data.token)
       window.location.reload()
       this.props.history.push('/')

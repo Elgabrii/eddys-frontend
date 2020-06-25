@@ -117,7 +117,7 @@ export class Products extends Component {
             products.map(product => (
               <Product onClick={() => this.toggleModal(product, 'EDIT')} key={product.id} m={1} flexDirection="column">
               <ImageContainer>
-                <img src={`http://eddys-kitchen.com:1337/file_uploads/${product&&product.images[0]&& product.images[0].link}`} alt="" />
+                <img src={`https://backend.eddys-kitchen.com/${product&&product.images[0]&& product.images[0].link}`} alt="" />
               </ImageContainer>
                 <ProductName>
                   {product.nameEnglish}

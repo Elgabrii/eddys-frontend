@@ -7,7 +7,8 @@ import Cookies from 'js-cookie';
 //     'x-access-token': auth
 //   } 
 // }
-export const baseURL = 'http://157.230.16.61:1337'
+// export const baseURL = 'http://157.230.16.61:1337'
+export const baseURL = 'https://backend.eddys-kitchen.com/api'
 export const bareBaseURL = 'http://157.230.16.61'
 let token = sessionStorage.getItem('auth');
 export const api = axios.create({
