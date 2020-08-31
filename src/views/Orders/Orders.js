@@ -68,6 +68,7 @@ class Orders extends Component {
     startDate: new Date(new Date().setDate(new Date().getDate() -3)),
     ordersLoading: false,
     error: false,
+    salesLoading: false,
   }
   interval = null
   componentDidMount() {
@@ -188,18 +189,8 @@ generateInvoice = (order) => {
   let items = orderItems&&orderItems.reduce(
     (acc, item) => acc+=`${item.quantity || ''} x ${item.nameEnglish || 'no name'} ${item.price*item.quantity || ''} EGP \n`,''
   )
-  // let invoice = {
-  //   receivedAt: new Date(order.createdAt).toLocaleTimeString().toString(),
-  //   client: order.user&& order.user.name,
-  //   phoneNumber: order.user&&order.user.phoneNumber,
-  //   email: order.auth&&order.auth.email,
-  //   paymentMethod: order.method,
-  //   amount: order.amount,
-  //   orderItems: items,
-
-  // }
   let invoice = `
-    received at : ${new Date(order.createdAt).toLocaleTimeString().toString()} \n
+    received at : ${new Date(order.createdAt).toLocaleString('en-GB').toString()} \n
     client: ${order.user&& order.user.name} \n
     phone number: ${order.user&&order.user.phoneNumber} \n
     email : ${order.auth&&order.auth.email} \n
@@ -218,6 +209,67 @@ generateInvoice = (order) => {
   `
   this.downloadCSV(invoice)
 }
+
+exportCashSales = () => {
+  let { orders } = this.state
+  let completedCashOrders = orders.filter(order => order.method==='cash' && order.status==='completed')
+  this.exportSales(completedCashOrders)
+}
+exportCreditSales = () => {
+  let { orders } = this.state
+  let completedCreditOrders = orders.filter(order => order.method==='we-accept' && order.status==='paid')
+  this.exportSales(completedCreditOrders)
+}
+exportSales = async(orders) => {
+  let resolvedProdmises
+  let totalCash = 0;
+  let creditStockReport = ''
+  for (let i = 0; i < orders.length; i++) {
+    const element = orders[i];
+    let products = element&&element.products
+    let productsIds = products.map(product => product.id)
+    this.setState({salesLoading: true})
+    let promises = await this.preparePromiseBulk(productsIds)
+    resolvedProdmises = await this.resolveProductsPromises(promises)
+    resolvedProdmises = resolvedProdmises.map(product => ({nameEnglish: product.nameEnglish, price: product.price}))
+    products = products.map((product, index) => ({...resolvedProdmises[index],...product}))
+    let items = products.reduce((acc, item) => {
+      return acc+=`${item.quantity || ''} x ${item.nameEnglish || 'no name'} ${item.price*item.quantity || ''} EGP \n`
+    },'')
+    totalCash += element.amount
+    creditStockReport+= `
+    received at : ${new Date(element.createdAt).toLocaleString('en-GB').toString()} \n
+    client: ${element.user&& element.user.name} \n
+    phone number: ${element.user&&element.user.phoneNumber} \n
+    email : ${element.auth&&element.auth.email} \n
+    payment method: ${element.method} \n
+    amount: ${element.amount} \n
+    order items: \n
+      ${items}
+      Address Details: \n
+      Zone: ${element.city || ''} \n
+      Street: ${element.street || ''} \n
+      Building: ${element.building || ''} \n
+      Floor: ${element.floor || ''} \n
+      Apartment: ${element.appartment || ''} \n
+      Landmark: ${element.landmark || ''} \n
+      Note: ${element.notes || ''} \n
+      -------------------------------------------------------------- \n
+    `
+    // console.log(creditStockReport, 'current')
+    element.products = products
+  }
+  // console.log(completedCreditOrders, 'completed')
+  creditStockReport = `Total Cash: ${totalCash} EGP\n
+  Number of orders: ${orders.length} \n
+  ${creditStockReport}
+  `
+  this.setState({salesLoading: false})
+  this.downloadCSV(creditStockReport, 'credit_sales')
+
+}
+
+preparePromiseBulk = (ids) => ids.map(id => this.fetchProductInfo(id))
 
 generateConsumedStock = async() => {
   let { orders } = this.state
@@ -247,10 +299,12 @@ generateConsumedStock = async() => {
 }
 
   render() {
-    let { orders, pages, page, ordersLoading, error, panelExpanded, orderItems, buttonLoading, endDate, startDate, ordersCount } = this.state
+    let { orders, pages, page, ordersLoading, error, panelExpanded, orderItems, buttonLoading, endDate, startDate, ordersCount, salesLoading } = this.state
     return (
       <Base>
       <button onClick={this.generateConsumedStock}>Export stock</button>
+    <button disabled={salesLoading} onClick={this.exportCreditSales}>{salesLoading ? 'Loading...' : 'Export Credit Sales'}</button>
+    <button disabled={salesLoading} onClick={this.exportCashSales}>{salesLoading ? 'Loading...' : 'Export Cash Sales'}</button>
       <Flex justifyContent="" width={1}>
        end date <DatePicker
           selected={endDate}
@@ -285,7 +339,7 @@ generateConsumedStock = async() => {
                        
                        <Typography>
                          <Typography className={classes.secondaryHeading}>
-                           <b>Order received at: {new Date(order.createdAt).toLocaleTimeString().toString()}</b> <button onClick={()=>this.generateInvoice(order)}>Export order invoice</button>
+                           <b>Order received at: {new Date(order.createdAt).toLocaleString('en-GB').toString()} {new Date(order.createdAt).toLocaleTimeString().toString()}</b> <button onClick={()=>this.generateInvoice(order)}>Export order invoice</button>
                          </Typography>
                          <Typography className={classes.secondaryHeading}>
                            <b>Client: </b>{order.user&&order.user.name}
