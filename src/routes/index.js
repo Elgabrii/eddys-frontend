@@ -5,7 +5,7 @@ import Orders from 'views/Orders/Orders'
 import Products from 'views/Products/Products'
 import Categories from 'views/Categories/Categories';
 import Messages from 'views/Messages/Messages';
-
+import Catering from 'views/Catering/Catering';
 const routes = [
   {
     path: '/',
@@ -14,6 +14,10 @@ const routes = [
   {
     path: '/login',
     component: Login,
+  },
+  {
+    path: '/catering',
+    component: Catering
   },
   {
     path: '/orders',

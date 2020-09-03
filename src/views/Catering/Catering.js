@@ -1,16 +1,13 @@
 import React, { Component } from 'react';
-import { Headings, Base, ProductsContainer, ProductName, ImageContainer, Heading, Product, ProductPrice, PaginationContainer } from './Products.style';
-// import ProductImage from '../../assets/bread.jpg';
+import { Headings, Base, ProductsContainer, ProductName, ImageContainer, Heading, Product, ProductPrice, PaginationContainer } from './Catering.style';
 import ProductModal from '../../components/ProdutModal/ProductModal';
-import axios from 'axios';
 import {GET, baseURL, bareBaseURL, api} from '../../api/api';
 import urls from '../../api/urls';
 import Pagination from '@material-ui/lab/Pagination';
-// let ProductImage = `${baseURL}/file_uploads/f878db9e-ee2a-47bc-b87c-d78f6d83edd0.jpg`
 import TextField from '@material-ui/core/TextField';
 import debounce from 'lodash.debounce';
 import CircularProgress from '@material-ui/core/CircularProgress';
-import {Flex} from '@rebass/grid';
+
 export class Products extends Component {
   componentDidMount() {
     this.getProducts()
@@ -30,14 +27,12 @@ export class Products extends Component {
     loading: false,
   }
   getProducts = async(skip=0, limit=30) => {
-    this.setState({loading: true})
     try {
-      const response = await GET(`${baseURL}/products?skip=${skip}&limit=${limit}`);
+      const response = await GET(`${baseURL}/products?type=catering&skip=${skip}&limit=${limit}`);
       const count = response.data.count
       this.setState({
         products: response.data.results,
-        pages: Math.ceil(count/30),
-        loading: false
+        pages: Math.ceil(count/30)
       })
     } catch (error) {
       throw error
@@ -46,7 +41,7 @@ export class Products extends Component {
 
   getCategories = async() => {
     try {
-      const response = await GET(`${baseURL}${urls.categories}`)
+      const response = await GET(`${baseURL}${urls.categories}?type=catering`)
       this.setState({ categories: response.data })
     }
     catch(err) {
@@ -108,16 +103,14 @@ export class Products extends Component {
           <Heading>
             All products 
           </Heading>
-            <TextField id="standard-basic" label="search products" onChange={this.handleSearchTermChange} />
+            {/* <TextField id="standard-basic" label="search products" onChange={this.handleSearchTermChange} /> */}
           <Heading onClick={this.toggleModal} pointer>
             Add Product
           </Heading>
         </Headings>
         <ProductsContainer flexWrap="wrap" p={1}>
           {
-            loading? <Flex height="80vh" alignItems="center">
-              <CircularProgress />
-            </Flex> :
+            loading? <CircularProgress /> :
             products.map(product => (
               <Product onClick={() => this.toggleModal(product, 'EDIT')} key={product.id} m={1} flexDirection="column">
               <ImageContainer>

@@ -20,6 +20,17 @@ let classes = {
   }
 }
 
+const productTypes = [
+  {
+    id: 1,
+    type: 'normal'
+  },
+  {
+    id: 2,
+    type: 'catering'
+  }
+]
+
 export class ProductModal extends Component {
   constructor(props) {
     super(props)
@@ -36,6 +47,7 @@ export class ProductModal extends Component {
       storingMethod: '',
       ingredientsEnglish: '',
       ingredientsArabic: '',
+      type: '',
       category: null,
       quantity: 0,
       submitting: false,
@@ -56,11 +68,14 @@ export class ProductModal extends Component {
       ingredientsArabic,
       edit,
       images,
+      type
     } = this.props
     if(!edit) return
     if (
       nameEnglish !== prevProps.nameEnglish 
       || 
+      type !== prevProps.type
+      ||
       nameArabic !== prevProps.nameArabic
       ||
       descriptionEnglish !== prevProps.descriptionEnglish
@@ -91,6 +106,7 @@ export class ProductModal extends Component {
       // ingredientsArabic: '',
     this.setState({
       nameEnglish,
+      type,
       nameArabic,
       descriptionEnglish,
       descriptionArabic,
@@ -131,7 +147,8 @@ export class ProductModal extends Component {
       storingMethod: '',
       ingredientsEnglish: '',
       ingredientsArabic: '',
-      availability: false
+      availability: false,
+      type: '',
     })
     this.props.stopEdit()
     this.props.closeModal()
@@ -215,7 +232,7 @@ export class ProductModal extends Component {
   }
   render() {
     let { toggle, categories, product } = this.props
-    let { nameEnglish, images, nameArabic, descriptionEnglish, descriptionArabic, price, availability, category, howToPrepare, storingMethod, ingredientsEnglish, ingredientsArabic } = this.state
+    let { nameEnglish, images, nameArabic, descriptionEnglish, descriptionArabic, price, availability, category, howToPrepare, storingMethod, ingredientsEnglish, ingredientsArabic, type } = this.state
     return (
       <>
       {
@@ -255,6 +272,21 @@ export class ProductModal extends Component {
             {categories&&categories.map((option) => (
               <MenuItem key={option.id} value={option.id}>
                 {option.name}
+              </MenuItem>
+            ))}
+          </TextField>
+          <TextField
+            id="standard-select-currency"
+            select
+            name="type"
+            label=""
+            value={type}
+            onChange={this.onChange}
+            helperText="Please select a product type"
+          >
+            {productTypes&&productTypes.map((option) => (
+              <MenuItem key={option.id} value={option.type}>
+                {option.type}
               </MenuItem>
             ))}
           </TextField>

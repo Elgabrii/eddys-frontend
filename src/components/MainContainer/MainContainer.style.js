@@ -6,7 +6,7 @@ export const Base = styled(Flex)`
   background: ${props => (props.isLoginPage ? ' #fff;' : '#f4f7fc')};
 `
 export const SidebarContainer = styled(Flex)`
-  background: ${props => props.theme.colors.primary};
+  background: ${props => props.theme.colors.lightBlack};
   padding-top: 30px;
   min-height: 96vh;
   /* height: 100%; */
@@ -14,7 +14,7 @@ export const SidebarContainer = styled(Flex)`
 export const SidebarItem = styled(Flex)`
   ${({ selected }) => (selected ? 'border-left: 3px solid white' : '')};
   background: ${({ selected, theme }) =>
-    selected ? '#005296' : theme.colors.primary};
+    selected ? theme.colors.lightBlack : theme.colors.lightBlack};
   font-size: 16px;
   font-weight: normal;
   color: white;

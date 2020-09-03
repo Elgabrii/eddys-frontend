@@ -8,18 +8,22 @@ export const sideBarItems = [
   },
   {
     id: 1,
+    name: 'Catering',
+    url: '/catering'
+  },
+  {
+    id: 2,
     name: 'Orders',
     url: '/orders'
   },
   {
-    id: 2,
+    id: 3,
     name: 'Categories',
     url: '/categories'
   },
   {
-    id: 3,
+    id: 4,
     name: 'Messages',
     url: '/messages'
   }
-
 ]
