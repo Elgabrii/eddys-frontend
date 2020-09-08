@@ -28,7 +28,6 @@ class MainContainer extends Component {
                     onClick={() => select(item)}
                     selected={selectedItem === item.url}
                   >
-              
                     {item.name}
                   </SidebarItem>
                 </StyledLink>

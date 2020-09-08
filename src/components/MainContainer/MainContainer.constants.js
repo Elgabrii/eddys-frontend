@@ -25,5 +25,10 @@ export const sideBarItems = [
     id: 4,
     name: 'Messages',
     url: '/messages'
+  },
+  {
+    id: 5,
+    name: 'Zones',
+    url: '/zones'
   }
 ]

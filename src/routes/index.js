@@ -6,6 +6,8 @@ import Products from 'views/Products/Products'
 import Categories from 'views/Categories/Categories';
 import Messages from 'views/Messages/Messages';
 import Catering from 'views/Catering/Catering';
+import Zones from 'views/Zones/Zones';
+
 const routes = [
   {
     path: '/',
@@ -30,6 +32,10 @@ const routes = [
   {
     path: '/messages',
     component: Messages
+  },
+  {
+    path: '/zones',
+    component: Zones
   }
 ]
 
