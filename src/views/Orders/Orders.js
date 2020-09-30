@@ -23,7 +23,8 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import CircularProgress from '@material-ui/core/CircularProgress';
 import CsvDownload from 'react-json-to-csv'
-
+import Select from '@material-ui/core/Select';
+import MenuItem from '@material-ui/core/MenuItem';
 
 // const useStyles =
 const convertCalendarDate = (date) => {
@@ -55,6 +56,8 @@ const classes = (() => ({
 class Orders extends Component {
   state = {
     orders: [],
+    zones:[],
+    selectedZone: "",
     pages: 1,
     page: 1,
     skip: 0,
@@ -74,21 +77,36 @@ class Orders extends Component {
   componentDidMount() {
     let { skip, limit } = this.state
     this.fetchOrders(skip,limit)
+    this.getZones()
     this.interval = setInterval(() => this.fetchOrders(skip,limit), 60000);
   }
   componentWillUnmount() {
     clearInterval(this.interval);
   }
 
+  getZones = async() => {
+    let url = `${baseURL}/zone`
+    try {
+      let res = await api.get(url)
+      let zones = res.data
+      this.setState({zones})
+    }
+    catch(err) {
+      throw err
+    }
+  }
+
   fetchOrders = async (skip, limit) => {
     this.setState({ordersLoading: true})
     let start = this.state.startDate
     let end = this.state.endDate
+    let zone = this.state.selectedZone
+    let zoneQueryString = zone ? `&city=${zone}` : ''
     // or=[{"status":"paid"}]
     // where={"status":"paid"}
     // or=[{"status":"pending", "method": "cash"},{"status": ["paid", "completed"]}]
     try {
-      let res = await api.get(`${baseURL}/order?skip=${skip}&limit=${limit}&startDate=${start}&endDate=${end}&or=[{"status":"pending", "method": "cash"},{"status": ["paid", "completed"]}]&sort=createdAt DESC`)
+      let res = await api.get(`${baseURL}/order?skip=${skip}&limit=${limit}${zoneQueryString}&startDate=${start}&endDate=${end}&or=[{"status":"pending", "method": "cash"},{"status": ["paid", "completed"]}]&sort=createdAt DESC`)
       let orders = res.data.results
       let count = res.data.count
       let pages = Math.ceil(count/30)
@@ -271,6 +289,11 @@ exportSales = async(orders) => {
 
 preparePromiseBulk = (ids) => ids.map(id => this.fetchProductInfo(id))
 
+setZone = (event) => {
+  let {skip, limit} = this.state
+  this.setState({selectedZone: event.target.value}, () => this.fetchOrders(skip, limit))
+}
+
 generateConsumedStock = async() => {
   let { orders } = this.state
   let productsArray = orders.reduce((acc, currentOrder) => [...acc, ...currentOrder.products],[]).map(product => ({...product, quantity: parseInt(product.quantity)}))
@@ -299,23 +322,37 @@ generateConsumedStock = async() => {
 }
 
   render() {
-    let { orders, pages, page, ordersLoading, error, panelExpanded, orderItems, buttonLoading, endDate, startDate, ordersCount, salesLoading } = this.state
+    let { orders, pages, page, selectedZone, zones, ordersLoading, error, panelExpanded, orderItems, buttonLoading, endDate, startDate, ordersCount, salesLoading } = this.state
     return (
       <Base>
       <button onClick={this.generateConsumedStock}>Export stock</button>
     <button disabled={salesLoading} onClick={this.exportCreditSales}>{salesLoading ? 'Loading...' : 'Export Credit Sales'}</button>
     <button disabled={salesLoading} onClick={this.exportCashSales}>{salesLoading ? 'Loading...' : 'Export Cash Sales'}</button>
-      <Flex justifyContent="" width={1}>
-       end date <DatePicker
+      <Flex flexDirection="column" alignItems="flex-start" width={1}>
+       End date <DatePicker
           selected={endDate}
           onChange={this.handleEndDateChange}
         />
-       start date <DatePicker
+       Start date <DatePicker
           selected={startDate}
           onChange={this.handleStartDateChange}
         />
               {/* <CircularProgress /> */}
-
+        <hr></hr>
+        Zone:      
+        <Select
+          labelId="demo-simple-select-label"
+          id="demo-simple-select"
+          value={selectedZone}
+          placeholder="select zone"
+          onChange={this.setZone}
+        >
+          {
+            zones&&zones.map((zone) => (
+              <MenuItem value={zone.name}>{zone.name}</MenuItem>
+            ))
+          }
+        </Select>
       </Flex>
         {
           error?<h3>an error has occured</h3> : 
